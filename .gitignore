@@ -1,0 +1,7 @@
+#Node modules
+/node_modules
+
+#Anything that looks next ish
+/.next
+# The damn build
+/public

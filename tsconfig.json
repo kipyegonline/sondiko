@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "allowJs": true,
+    "sourceMap": true,
+    "outDir": "./public",
+    "target": "es6",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "lib": ["dom", "es2015"],
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "declaration": true, // Generate corresponding .d.ts file
+    "noUnusedLocals": true, // Report errors on unused locals
+    "noUnusedParameters": true, // Report errors on unused parameters
+    "experimentalDecorators": true, // Enables experimental support for ES decorators
+    "incremental": false, // Enable incremental compilation by reading/writing information from prior compilations to a file on disk
+    "noFallthroughCasesInSwitch": true // Report errors for fallthrough cases in switch statement
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
