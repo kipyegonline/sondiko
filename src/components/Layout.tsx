@@ -1,7 +1,7 @@
 import React from "react";
 
 type Props = {
-  children: JSX.Element;
+  children: React.ReactNode;
 };
 export default function Layout({ children }: Props): JSX.Element {
   return (
