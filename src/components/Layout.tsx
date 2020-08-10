@@ -1,11 +1,26 @@
 import React from "react";
+import Head from "next/head";
+import Router from "next/router";
+//import Nav from "./nav";
 
 type Props = {
   children: React.ReactNode;
 };
+const useAuth = () => JSON.parse(localStorage.getItem("sondiko"));
 export default function Layout({ children }: Props): JSX.Element {
-  return (
+  let auth;
+  if (globalThis.Window) {
+    console.log("window", globalThis.Window);
+    auth = useAuth();
+  }
+
+  const Layout = (
     <div>
+      <Head>
+        <meta charSet="utf-8" />
+        <title>Sondiko Investments.</title>
+      </Head>
+
       {children}
       <style global jsx>
         {`
@@ -25,4 +40,10 @@ export default function Layout({ children }: Props): JSX.Element {
       </style>
     </div>
   );
+  if (auth) {
+    return Layout;
+  } else {
+    if (globalThis.Window) Router.push("login");
+    return <p>Redirecting...</p>;
+  }
 }

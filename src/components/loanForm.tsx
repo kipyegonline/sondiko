@@ -1,5 +1,8 @@
 import React from "react";
+import axios from "axios";
+import Alert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/styles";
+//import InputAdornment from "@material-ui/core/InputAdornment";
 import {
   Grid,
   Input,
@@ -9,9 +12,13 @@ import {
   TextField,
   Typography,
   Divider,
+  Snackbar,
   Box,
-  Button
+  Button,
+  LinearProgress
 } from "@material-ui/core";
+//import Account from "@material-ui/icons/AccountBox";
+
 const useStyles = makeStyles({
   formControl: {
     margin: "0.75rem .15rem",
@@ -48,6 +55,11 @@ type Props = {
   type: string;
   label: string;
 };
+type Assets = {
+  model: string;
+  value: string;
+  asset: string;
+};
 interface userData {
   clientName: string;
   clientId: string;
@@ -62,6 +74,8 @@ interface userData {
   asset: string;
   model: string;
   value: string;
+  item?: string;
+  addedBy: number | null;
 }
 
 export const LoanForm: React.FC<{}> = () => {
@@ -79,39 +93,164 @@ export const LoanForm: React.FC<{}> = () => {
   const [asset, setAssetName] = React.useState<string>("");
   const [model, setAssetModel] = React.useState<string>("");
   const [value, setAssetValue] = React.useState<string>("");
+  const [assets, setAssets] = React.useState<Array<Assets>>([]);
+  const [spinner, setSpinner] = React.useState<boolean>(false);
+  const [errinf, setError] = React.useState<string>("");
+  const [success, setSuccess] = React.useState<string>("");
   const form = React.useRef<HTMLFormElement>(null!);
 
   const getValue = (name: string, value: string) => {
     let setState = eval("set" + name);
     setState(value);
-    console.log(name);
   };
+  //get added assets
   const getAsset = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
     let target = e.target as HTMLInputElement;
-    console.log(target.name, target.value);
+    let setState = eval("set" + target.name);
+    setState(target.value);
   };
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const getEl = (el: string): HTMLInputElement =>
+    document.getElementById(el) as HTMLInputElement;
+  //put assets into array
+  const handleAssets = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    if (asset) {
+      setAssets([...assets, { asset, model, value }]);
+      setAssetName("");
+      setAssetModel("");
+      setAssetValue("");
+      //clear  input
+      getEl("assetName").value = "";
+      getEl("assetModel").value = "";
+      getEl("assetValue").value = "";
+      console.log(assets, value, asset, e);
+    }
+  };
+  //form submission
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void | null => {
     e.preventDefault();
+    const uuid = JSON.parse(localStorage.getItem("sondiko"));
+    if (!uuid) {
+      setError("Please login to perform this operation");
+      setTimeout(() => setError(""), 3000);
+    } else if (clientName.indexOf(" ") < 0 || clientName.trim().length < 6) {
+      clientName.trim().length < 6
+        ? setError("Enter name on number 1")
+        : setError("Enter second name on number 1");
+      setTimeout(() => setError(""), 3000);
+    } else if (clientId.trim().length < 6) {
+      setError("Enter national id number on number 2");
+      setTimeout(() => setError(""), 3000);
+    } else if (clientPhone.trim().length < 1) {
+      setError("Enter phone number on number 3");
+      setTimeout(() => setError(""), 3000);
+    } else if (date.trim().length < 10) {
+      setError("Enter date on number 4");
+      setTimeout(() => setError(""), 3000);
+    } else if (amount.trim().length < 1) {
+      setError("How much was borrowed on number 5?");
+      setTimeout(() => setError(""), 3000);
+    } else if (returnDate.trim().length < 10) {
+      setError("Enter loan repayment date on number 6");
+      setTimeout(() => setError(""), 3000);
+    } else if (subCounty.trim().length < 1) {
+      setError("Enter district on number 7");
+      setTimeout(() => setError(""), 3000);
+    } else if (location.trim().length < 1) {
+      setError("Enter location on number 8");
+      setTimeout(() => setError(""), 3000);
+    } else if (subLocation.trim().length < 1) {
+      setError("Enter sub location on number 9");
+      setTimeout(() => setError(""), 3000);
+    } else if (village.trim().length < 1) {
+      setError("Enter village on number 10");
+      setTimeout(() => setError(""), 3000);
+    } else if (
+      clientName.length > 6 &&
+      clientId.length > 5 &&
+      clientPhone.length > 0 &&
+      date.length > 9 &&
+      amount.length > 0 &&
+      returnDate.length > 9 &&
+      subCounty.length > 0 &&
+      location.length > 0 &&
+      subLocation.length > 0 &&
+      village.length > 0
+    ) {
+      // send to server
+      const formData: FormData = new FormData(form.current);
+      //prepare assets
+      let massets: string =
+        assets.length > 0 ? assets.map((item) => item.asset).join("*") : "";
+      let mmodel: string =
+        assets.length > 0 ? assets.map((item) => item.model).join("*") : "";
+      let mvalue: string =
+        assets.length > 0 ? assets.map((item) => item.value).join("*") : "";
 
-    const data: userData = {
-      clientName,
-      clientId,
-      clientPhone,
-      date,
-      amount,
-      returnDate,
-      subCounty,
-      location,
-      subLocation,
-      village,
-      asset,
-      model,
-      value
-    };
-    console.log("submit", data);
-    form.current.reset();
+      setError("");
+      setSpinner(true);
+      const data: userData = {
+        clientName,
+        clientId,
+        clientPhone,
+        date,
+        amount,
+        returnDate,
+        subCounty,
+        location,
+        subLocation,
+        village,
+        asset: massets,
+        model: mmodel,
+        value: mvalue,
+        addedBy: uuid || 0
+      };
+      for (const item in data) {
+        formData.append(item, data.item);
+      }
+
+      axios
+        .post("./server/routes.php?addloans=true", data)
+        .then((res) => {
+          console.log(res, "routes");
+
+          if (res.data.status == 200) {
+            setSuccess(res.data.statusText);
+            setSpinner(false);
+            setTimeout(() => {
+              setClientId("");
+              setClientName("");
+              setClientPhone("");
+              setAmount("");
+              setDate("");
+              setReturnDate("");
+              setSubCounty("");
+              setLocation("");
+              setSubLocation("");
+              setVillage("");
+              setAssetModel("");
+              setAssetName("");
+              setAssetValue("");
+              setAssets([]);
+              form.current.reset();
+              setSuccess("");
+            }, 3000);
+          } else {
+            throw new Error(res.data.statusText);
+          }
+        })
+        .catch((error) => {
+          console.log("Error stat", error);
+          setError(error.message);
+          setTimeout(() => setError(""), 3000);
+          setSpinner(false);
+        });
+    } else {
+      setError("Error information...Try again later.");
+
+      setTimeout(() => setError(""), 3000);
+    }
   };
 
   return (
@@ -198,11 +337,19 @@ export const LoanForm: React.FC<{}> = () => {
             <Typography variant="body1" className="assets">
               Assets
             </Typography>
+            <FormHelperText>
+              {assets.length
+                ? `${assets.length} ${
+                    assets.length > 1 ? "assets" : "asset"
+                  } added`
+                : null}
+            </FormHelperText>
             <TextField
               onChange={getAsset}
               name="AssetName"
               className={classes.asset}
               variant="filled"
+              id="assetName"
               label="Asset Name"
             />{" "}
             <TextField
@@ -210,6 +357,7 @@ export const LoanForm: React.FC<{}> = () => {
               type="text"
               className={classes.asset}
               name="AssetModel"
+              id="assetModel"
               variant="filled"
               label="Model/Color"
             />
@@ -218,11 +366,28 @@ export const LoanForm: React.FC<{}> = () => {
               type="text"
               className={classes.asset}
               name="AssetValue"
+              id="assetValue"
               variant="filled"
               label="Value"
             />
+            <Button
+              color="secondary"
+              onClick={handleAssets}
+              variant="outlined"
+              size="small"
+            >
+              Add Asset
+            </Button>
             <Box>
-              <FormHelperText></FormHelperText>
+              <FormHelperText className="text-center" error>
+                {errinf}
+              </FormHelperText>
+              <FormHelperText className="text-center" error>
+                {""}
+              </FormHelperText>
+              {spinner ? (
+                <LinearProgress className="text-center" color="primary" />
+              ) : null}
             </Box>
             <Button
               type="submit"
@@ -230,10 +395,16 @@ export const LoanForm: React.FC<{}> = () => {
               variant="contained"
               color="primary"
               fullWidth
-              disabled={false}
+              disabled={spinner}
             >
               Submit
             </Button>
+            <Snackbar
+              open={success.length ? true : false}
+              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+              <Alert severity="success">{success}</Alert>
+            </Snackbar>
           </Grid>
         </Grid>
       </form>
@@ -243,6 +414,10 @@ export const LoanForm: React.FC<{}> = () => {
           padding: 0.5rem;
           line-height: 1em;
           text-align: center;
+        }
+        .text-center{
+          text-align:center;
+          margin:.25rem auto;
         }
       `}</style>
     </Grid>
@@ -267,7 +442,7 @@ export const TextInput: React.FC<Props> = ({
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
   ): void => {
     let target = e.target as HTMLInputElement;
-    console.log(target.name, target.nextSibling);
+
     if (!target.value.length) {
       setError(true);
     } else {

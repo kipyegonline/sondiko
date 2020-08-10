@@ -1,6 +1,6 @@
 import React from "react";
 
-function Sandbox() {
+export function Sandbox() {
   const [text, setText] = React.useState<string>("");
 
   const tasks: string[] = [];
@@ -20,6 +20,7 @@ function Sandbox() {
       <p>Let's keep dancing o a brokwn glass</p>
       <ul id="tasks"></ul>
       <NewAlbums {...albums} />
+      <Count count={1} />
       <style>{`
           .cont{background:#aaa; padding:1rem; margin:1rem;}`}</style>
     </div>

@@ -1,9 +1,6 @@
 import * as React from "react";
-import { useRouter } from "next/router";
 
 export default function Contact() {
-  const router = useRouter();
-
   return (
     <div>
       <p>Rendering TSX or rather typescript...</p>

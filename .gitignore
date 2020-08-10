@@ -5,3 +5,9 @@
 /.next
 # The damn build
 /public
+
+#tsx md
+/tsx.md
+#exports
+/out
+

@@ -7,18 +7,9 @@ import Layout from "../components/Layout";
 const useStyles = makeStyles({
   grid: { maxWidth: 1000 }
 });
-type Props = { handleClick(): void };
-
-type ButtonEvent = React.MouseEvent<HTMLButtonElement>;
 
 function Sondiko(): React.ReactNode {
   const classes = useStyles();
-  const handleClick = (e: ButtonEvent): Props => {
-    console.log("Btn clicked");
-  };
-  const getDamnValue = (name: string, value: string): void => {
-    console.log(name, value);
-  };
 
   return (
     <Layout>
@@ -54,9 +45,3 @@ export function reducer(state: AppState, action: Action): AppState {
       return state;
   }
 }
-
-const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-
-  console.log(name);
-};

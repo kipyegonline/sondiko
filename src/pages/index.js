@@ -1,13 +1,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import Contact from "./app.tsx";
+import Layout from "../components/Layout.tsx";
 
 function App() {
   return (
-    <div>
-      <p>This is next and React</p>
-      <Contact />
-    </div>
+    <Layout>
+      <h3>Sondiko INV</h3>
+    </Layout>
   );
 }
 export default App;
