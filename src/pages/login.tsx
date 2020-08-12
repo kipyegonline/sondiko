@@ -43,7 +43,7 @@ export default function Login(): React.ReactNode {
   };
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    console.log(email, password);
+
     if (!email.trim().length && !password.trim().length) {
       showError("Enter email and password.");
       setTimeout(() => showError(""), 3000);
@@ -58,14 +58,12 @@ export default function Login(): React.ReactNode {
     } else if (email.trim().length > 8 && password.trim().length > 5) {
       showError("");
       setSpinner(true);
-      let formData: FormData = new FormData();
-      formData.append("useremail", email);
-      formData.append("userpassword", password);
+
       axios
         .post("./server/routes.php?login=true", { email, password })
         .then((res) => {
           setSpinner(false);
-          console.log(res);
+
           if (res.data.status === 200) {
             localStorage.setItem("sondiko", JSON.stringify(res.data));
 
@@ -108,7 +106,7 @@ export default function Login(): React.ReactNode {
 
           <CardContent>
             <TextInput
-              type="email"
+              type="text"
               name="Email"
               label="Email address"
               sendValue={getLogins}

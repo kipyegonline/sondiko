@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import Alert from "@material-ui/lab/Alert";
 import { makeStyles } from "@material-ui/styles";
 //import InputAdornment from "@material-ui/core/InputAdornment";
@@ -15,7 +15,8 @@ import {
   Snackbar,
   Box,
   Button,
-  LinearProgress
+  LinearProgress,
+  CircularProgress
 } from "@material-ui/core";
 //import Account from "@material-ui/icons/AccountBox";
 
@@ -59,6 +60,7 @@ type Assets = {
   model: string;
   value: string;
   asset: string;
+  clientServer: number;
 };
 interface userData {
   clientName: string;
@@ -71,11 +73,20 @@ interface userData {
   location: string;
   subLocation: string;
   village: string;
-  asset: string;
-  model: string;
-  value: string;
+
   item?: string;
-  addedBy: number | null;
+  addedBy: string;
+}
+interface Response extends AxiosResponse {
+  username: string;
+  status: number;
+  statusText: string;
+  id?: string;
+}
+interface Clear {
+  clearFields: () => void;
+  clientServer: number;
+  clientName: string;
 }
 
 export const LoanForm: React.FC<{}> = () => {
@@ -90,42 +101,35 @@ export const LoanForm: React.FC<{}> = () => {
   const [location, setLocation] = React.useState<string>("");
   const [subLocation, setSubLocation] = React.useState<string>("");
   const [village, setVillage] = React.useState<string>("");
-  const [asset, setAssetName] = React.useState<string>("");
-  const [model, setAssetModel] = React.useState<string>("");
-  const [value, setAssetValue] = React.useState<string>("");
-  const [assets, setAssets] = React.useState<Array<Assets>>([]);
+
   const [spinner, setSpinner] = React.useState<boolean>(false);
   const [errinf, setError] = React.useState<string>("");
   const [success, setSuccess] = React.useState<string>("");
+
+  const [clientServer, setClientServer] = React.useState(0);
   const form = React.useRef<HTMLFormElement>(null!);
 
   const getValue = (name: string, value: string) => {
     let setState = eval("set" + name);
     setState(value);
   };
-  //get added assets
-  const getAsset = (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    let target = e.target as HTMLInputElement;
-    let setState = eval("set" + target.name);
-    setState(target.value);
-  };
-  const getEl = (el: string): HTMLInputElement =>
-    document.getElementById(el) as HTMLInputElement;
-  //put assets into array
-  const handleAssets = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    if (asset) {
-      setAssets([...assets, { asset, model, value }]);
-      setAssetName("");
-      setAssetModel("");
-      setAssetValue("");
-      //clear  input
-      getEl("assetName").value = "";
-      getEl("assetModel").value = "";
-      getEl("assetValue").value = "";
-      console.log(assets, value, asset, e);
-    }
+
+  const clearFields = (): void => {
+    // reset
+    setTimeout(() => {
+      setClientId("");
+      setClientName("");
+      setClientPhone("");
+      setAmount("");
+      setDate("");
+      setReturnDate("");
+      setSubCounty("");
+      setLocation("");
+      setSubLocation("");
+      setVillage("");
+      setClientServer(0);
+      setSuccess("");
+    }, 3000);
   };
   //form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void | null => {
@@ -179,14 +183,6 @@ export const LoanForm: React.FC<{}> = () => {
       village.length > 0
     ) {
       // send to server
-      const formData: FormData = new FormData(form.current);
-      //prepare assets
-      let massets: string =
-        assets.length > 0 ? assets.map((item) => item.asset).join("*") : "";
-      let mmodel: string =
-        assets.length > 0 ? assets.map((item) => item.model).join("*") : "";
-      let mvalue: string =
-        assets.length > 0 ? assets.map((item) => item.value).join("*") : "";
 
       setError("");
       setSpinner(true);
@@ -201,41 +197,17 @@ export const LoanForm: React.FC<{}> = () => {
         location,
         subLocation,
         village,
-        asset: massets,
-        model: mmodel,
-        value: mvalue,
-        addedBy: uuid || 0
+        addedBy: uuid.username || "admin"
       };
-      for (const item in data) {
-        formData.append(item, data.item);
-      }
 
       axios
         .post("./server/routes.php?addloans=true", data)
-        .then((res) => {
-          console.log(res, "routes");
-
-          if (res.data.status == 200) {
-            setSuccess(res.data.statusText);
+        .then((res: Response) => {
+          const { data } = res;
+          if (data.status === 200) {
             setSpinner(false);
-            setTimeout(() => {
-              setClientId("");
-              setClientName("");
-              setClientPhone("");
-              setAmount("");
-              setDate("");
-              setReturnDate("");
-              setSubCounty("");
-              setLocation("");
-              setSubLocation("");
-              setVillage("");
-              setAssetModel("");
-              setAssetName("");
-              setAssetValue("");
-              setAssets([]);
-              form.current.reset();
-              setSuccess("");
-            }, 3000);
+            setClientServer(data.id);
+            form.current.reset();
           } else {
             throw new Error(res.data.statusText);
           }
@@ -243,8 +215,8 @@ export const LoanForm: React.FC<{}> = () => {
         .catch((error) => {
           console.log("Error stat", error);
           setError(error.message);
-          setTimeout(() => setError(""), 3000);
           setSpinner(false);
+          setTimeout(() => setError(""), 3000);
         });
     } else {
       setError("Error information...Try again later.");
@@ -253,14 +225,14 @@ export const LoanForm: React.FC<{}> = () => {
     }
   };
 
-  return (
+  const Loans = (
     <Grid>
       <form onSubmit={handleSubmit} ref={form}>
         <Typography variant="h5" className={classes.formTitle}>
           Add Loan details
         </Typography>
         <Grid container alignItems="flex-start" justify="flex-start">
-          <Grid item xs={12} lg={3} md={4} className={classes.grid}>
+          <Grid item xs={12} lg={4} md={4} className={classes.grid}>
             <Typography variant="body1" className="assets">
               Bio data
             </Typography>
@@ -297,7 +269,7 @@ export const LoanForm: React.FC<{}> = () => {
             />{" "}
           </Grid>
           <Divider orientation="vertical" />
-          <Grid item xs={12} lg={3} md={4} className={classes.grid}>
+          <Grid item xs={12} lg={4} md={4} className={classes.grid}>
             <Typography variant="body1" className="assets">
               Location
             </Typography>
@@ -332,52 +304,6 @@ export const LoanForm: React.FC<{}> = () => {
               name="Village"
               label="10. Village"
             />{" "}
-          </Grid>
-          <Grid item xs={12} sm={12} lg={4} md={4} className={classes.grid}>
-            <Typography variant="body1" className="assets">
-              Assets
-            </Typography>
-            <FormHelperText>
-              {assets.length
-                ? `${assets.length} ${
-                    assets.length > 1 ? "assets" : "asset"
-                  } added`
-                : null}
-            </FormHelperText>
-            <TextField
-              onChange={getAsset}
-              name="AssetName"
-              className={classes.asset}
-              variant="filled"
-              id="assetName"
-              label="Asset Name"
-            />{" "}
-            <TextField
-              onChange={getAsset}
-              type="text"
-              className={classes.asset}
-              name="AssetModel"
-              id="assetModel"
-              variant="filled"
-              label="Model/Color"
-            />
-            <TextField
-              onChange={getAsset}
-              type="text"
-              className={classes.asset}
-              name="AssetValue"
-              id="assetValue"
-              variant="filled"
-              label="Value"
-            />
-            <Button
-              color="secondary"
-              onClick={handleAssets}
-              variant="outlined"
-              size="small"
-            >
-              Add Asset
-            </Button>
             <Box>
               <FormHelperText className="text-center" error>
                 {errinf}
@@ -421,6 +347,137 @@ export const LoanForm: React.FC<{}> = () => {
         }
       `}</style>
     </Grid>
+  );
+  return !!clientServer ? (
+    Loans
+  ) : (
+    <AssetsForm
+      clearFields={clearFields}
+      clientServer={clientServer}
+      clientName={clientName}
+    />
+  );
+};
+
+const AssetsForm = ({
+  clearFields,
+  clientServer,
+  clientName
+}: Clear): JSX.Element => {
+  const [asset, setAssetName] = React.useState<string>("");
+  const [model, setAssetModel] = React.useState<string>("");
+  const [value, setAssetValue] = React.useState<string>("");
+  const [spinner, setSpinner] = React.useState<boolean>(false);
+  const [errinf, setError] = React.useState<string>("");
+  const [success, setSuccess] = React.useState<string>("");
+  const classes = useStyles();
+  //get added assets
+  const getAsset = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    let target = e.target as HTMLInputElement;
+    let setState = eval("set" + target.name);
+    setState(target.value);
+  };
+  const handleSubmit = () => {
+    clearFields();
+    setSpinner(true);
+    setTimeout(() => setSpinner(false), 2000);
+  };
+  const getEl = (el: string): HTMLInputElement =>
+    document.getElementById(el) as HTMLInputElement;
+  //put assets into array
+  const handleAssets = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    if (asset) {
+      e.preventDefault();
+
+      const userAssets: Assets = {
+        asset,
+        model,
+        value,
+        clientServer
+      };
+      // posts assets to server
+      axios
+        .post("./server/routes.php?addassets=true", userAssets)
+        .then((res) => {
+          const { data } = res;
+          if (data.status === 200) {
+            setSuccess(data.statusText);
+            setAssetName("");
+            setAssetModel("");
+            setAssetValue("");
+
+            //clear  input
+            getEl("assetName").value = "";
+            getEl("assetModel").value = "";
+            getEl("assetValue").value = "";
+          } else {
+            throw new Error(data.statusText);
+          }
+        })
+        .catch((error) => {
+          console.log("asset error");
+          setError(error.message);
+          setTimeout(() => setError(""), 3000);
+        });
+    }
+  };
+  return (
+    <Box style={{ width: 300, margin: "auto", padding: "1rem" }}>
+      <Typography variant="body1" className="assets">
+        Assets for {clientName}
+      </Typography>
+      <FormHelperText>Assets...</FormHelperText>
+      <TextField
+        onChange={getAsset}
+        name="AssetName"
+        className={classes.asset}
+        variant="filled"
+        id="assetName"
+        label="Asset Name"
+      />{" "}
+      <TextField
+        onChange={getAsset}
+        type="text"
+        className={classes.asset}
+        name="AssetModel"
+        id="assetModel"
+        variant="filled"
+        label="Model/Color"
+      />
+      <TextField
+        onChange={getAsset}
+        type="text"
+        className={classes.asset}
+        name="AssetValue"
+        id="assetValue"
+        variant="filled"
+        label="Value"
+      />
+      <Box>
+        <FormHelperText error>{errinf}</FormHelperText>
+      </Box>
+      <Button
+        color="secondary"
+        onClick={handleAssets}
+        variant="outlined"
+        size="small"
+      >
+        Add Asset
+      </Button>
+      <Snackbar open={!!success} message={success} />
+      <Button
+        color="primary"
+        variant="contained"
+        size="large"
+        disabled={spinner}
+        onClick={handleSubmit}
+      >
+        Submit All
+      </Button>
+      {spinner ? <CircularProgress size={30} /> : null}
+    </Box>
   );
 };
 

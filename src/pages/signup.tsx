@@ -20,6 +20,16 @@ import {
 
 import { TextInput } from "../components/loanForm";
 
+enum Color {
+  success = "success",
+  error = "error"
+} // "success" | "error"
+type Snack = {
+  open: boolean;
+  message: string;
+  severityState: Color;
+};
+
 export default function SignUp(): React.ReactNode {
   const [username, setUsername] = React.useState<string>("");
   const [useremail, setEmail] = React.useState<string>("");
@@ -224,15 +234,7 @@ export default function SignUp(): React.ReactNode {
     </Grid>
   );
 }
-enum Color {
-  success = "success",
-  error = "error"
-} // "success" | "error"
-type Snack = {
-  open: boolean;
-  message: string;
-  severityState: Color;
-};
+
 const MainSnackBar = ({ open, message, severityState }: Snack) => (
   <Snackbar
     style={{ width: "100%" }}
@@ -244,3 +246,16 @@ const MainSnackBar = ({ open, message, severityState }: Snack) => (
     <Alert severity={severityState}>{message}</Alert>
   </Snackbar>
 );
+
+interface User {
+  name: string;
+  age: number;
+  married: boolean;
+}
+
+function checkLe<T extends User>(user: T): T {
+  return user;
+}
+let res = checkLe({ name: "Vince", age: 22, married: false, home: "Litein" });
+
+const frenchie = <T extends unknown>(val: T): T => val;
