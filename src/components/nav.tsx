@@ -96,6 +96,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function PrimarySearchAppBar() {
+  const useAuth = () =>
+    globalThis && JSON.parse(localStorage.getItem("sondiko"));
+  let username: string | undefined | null;
+  if (useAuth()) {
+    username = useAuth().username;
+  }
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [
@@ -216,6 +222,7 @@ export default function PrimarySearchAppBar() {
               <MLink variant="h5">Sondiko</MLink>
             </Link>
           </Typography>
+          <Typography>{username || ""} </Typography>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />

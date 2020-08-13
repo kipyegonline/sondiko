@@ -15,7 +15,6 @@ import {
   Snackbar,
   Box,
   Button,
-  LinearProgress,
   CircularProgress
 } from "@material-ui/core";
 //import Account from "@material-ui/icons/AccountBox";
@@ -116,20 +115,19 @@ export const LoanForm: React.FC<{}> = () => {
 
   const clearFields = (): void => {
     // reset
-    setTimeout(() => {
-      setClientId("");
-      setClientName("");
-      setClientPhone("");
-      setAmount("");
-      setDate("");
-      setReturnDate("");
-      setSubCounty("");
-      setLocation("");
-      setSubLocation("");
-      setVillage("");
-      setClientServer(0);
-      setSuccess("");
-    }, 3000);
+
+    setClientId("");
+    setClientName("");
+    setClientPhone("");
+    setAmount("");
+    setDate("");
+    setReturnDate("");
+    setSubCounty("");
+    setLocation("");
+    setSubLocation("");
+    setVillage("");
+    setClientServer(0);
+    setSuccess("");
   };
   //form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void | null => {
@@ -199,15 +197,19 @@ export const LoanForm: React.FC<{}> = () => {
         village,
         addedBy: uuid.username || "admin"
       };
-
+      // useLocalStore(data);
       axios
         .post("./server/routes.php?addloans=true", data)
         .then((res: Response) => {
           const { data } = res;
+
           if (data.status === 200) {
-            setSpinner(false);
-            setClientServer(data.id);
-            form.current.reset();
+            // setClientServer(+data.id);
+            setTimeout(() => {
+              setClientServer(+data.id);
+              setSpinner(false);
+              form.current.reset();
+            }, 3000);
           } else {
             throw new Error(res.data.statusText);
           }
@@ -312,7 +314,12 @@ export const LoanForm: React.FC<{}> = () => {
                 {""}
               </FormHelperText>
               {spinner ? (
-                <LinearProgress className="text-center" color="primary" />
+                <CircularProgress
+                  size={30}
+                  thickness={3}
+                  className="text-center"
+                  color="primary"
+                />
               ) : null}
             </Box>
             <Button
@@ -348,7 +355,7 @@ export const LoanForm: React.FC<{}> = () => {
       `}</style>
     </Grid>
   );
-  return !!clientServer ? (
+  return !!!clientServer ? (
     Loans
   ) : (
     <AssetsForm
@@ -380,15 +387,21 @@ const AssetsForm = ({
     setState(target.value);
   };
   const handleSubmit = () => {
-    clearFields();
     setSpinner(true);
-    setTimeout(() => setSpinner(false), 2000);
+    setTimeout(() => {
+      setSpinner(false);
+      setSuccess("Details added successfully");
+      setTimeout(() => {
+        setSuccess("");
+        clearFields();
+      }, 300);
+    }, 2000);
   };
   const getEl = (el: string): HTMLInputElement =>
     document.getElementById(el) as HTMLInputElement;
-  //put assets into array
+  // put assets into array
   const handleAssets = (e: React.MouseEvent<HTMLButtonElement>): void => {
-    if (asset) {
+    if (asset && +clientServer > 0) {
       e.preventDefault();
 
       const userAssets: Assets = {
@@ -412,6 +425,7 @@ const AssetsForm = ({
             getEl("assetName").value = "";
             getEl("assetModel").value = "";
             getEl("assetValue").value = "";
+            setTimeout(() => setSuccess(""), 2000);
           } else {
             throw new Error(data.statusText);
           }
@@ -421,6 +435,8 @@ const AssetsForm = ({
           setError(error.message);
           setTimeout(() => setError(""), 3000);
         });
+    } else {
+      throw new Error("Unknown user");
     }
   };
   return (
@@ -457,6 +473,8 @@ const AssetsForm = ({
       />
       <Box>
         <FormHelperText error>{errinf}</FormHelperText>
+        <Snackbar open={!!success} />
+        <Alert severity="success">{success}</Alert>
       </Box>
       <Button
         color="secondary"
@@ -519,3 +537,15 @@ export const TextInput: React.FC<Props> = ({
     </FormControl>
   );
 };
+
+/*
+const useLocalStore = (data: userData) => {
+  let list = globalThis && JSON.parse(localStorage.getItem("sondikoList"));
+  if (list) {
+    list = [...list, data];
+    localStorage.setItem("sondikoList", JSON.stringify(list));
+  } else {
+    localStorage.setItem("sondikoList", JSON.stringify([data]));
+  }
+};
+*/

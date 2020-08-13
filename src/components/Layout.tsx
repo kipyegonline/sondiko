@@ -33,7 +33,8 @@ export default function Layout({ children }: Props): JSX.Element {
             background: #fff;
             font-family: roboto;
             font-size: 1rem;
-            margin: 2rem auto;
+            margin: 1rem auto;
+            border-radius: 5px;
           }
         `}
       </style>

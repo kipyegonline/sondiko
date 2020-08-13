@@ -246,16 +246,3 @@ const MainSnackBar = ({ open, message, severityState }: Snack) => (
     <Alert severity={severityState}>{message}</Alert>
   </Snackbar>
 );
-
-interface User {
-  name: string;
-  age: number;
-  married: boolean;
-}
-
-function checkLe<T extends User>(user: T): T {
-  return user;
-}
-let res = checkLe({ name: "Vince", age: 22, married: false, home: "Litein" });
-
-const frenchie = <T extends unknown>(val: T): T => val;
