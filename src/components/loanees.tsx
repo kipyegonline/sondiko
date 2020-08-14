@@ -23,9 +23,10 @@ type UserInfo = {
   village: string;
   addedon: string;
   addedBy: string;
+  staret: number;
 };
 
-function ShowLoanees({ data = [] }: UserInfo[] | any): React.ReactNode {
+function ShowLoanees({ data = [], start }: UserInfo[] | any): JSX.Element {
   return (
     <TableContainer>
       <Table>
@@ -46,7 +47,7 @@ function ShowLoanees({ data = [] }: UserInfo[] | any): React.ReactNode {
         </TableHead>
         <TableBody>
           {data.map((item: UserInfo, i: number) => (
-            <UsersTable key={item.id} {...item} index={i} />
+            <UsersTable key={item.id} {...item} index={i + start} />
           ))}
         </TableBody>
       </Table>

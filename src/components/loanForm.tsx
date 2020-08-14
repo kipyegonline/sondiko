@@ -209,7 +209,7 @@ export const LoanForm: React.FC<{}> = () => {
               setClientServer(+data.id);
               setSpinner(false);
               form.current.reset();
-            }, 3000);
+            }, 1000);
           } else {
             throw new Error(res.data.statusText);
           }

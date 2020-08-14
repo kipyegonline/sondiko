@@ -117,3 +117,10 @@ if(isset($_GET["selectedsearch"]) && $_GET["selectedsearch"]=="true"){
       $sondiko->getPayload($sql);
    }
 }
+
+if(isset($_GET["fetchtoday"]) && $_GET["fetchtoday"] =="true"){
+  echo "noted";
+  $sql="SELECT * FROM sondiko_clients WHERE  return_date='{CURDATE()}'";
+      $sondiko->getPayload($sql);
+   
+}

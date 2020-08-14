@@ -18,6 +18,8 @@ import {
   Divider,
   TablePagination
 } from "@material-ui/core";
+import Pagination from "@material-ui/lab/Pagination";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import Layout from "../components/Layout.tsx";
 import ShowLoanees from "../components/loanees.tsx";
 function App() {
@@ -31,8 +33,8 @@ function App() {
   const classes = useStyles();
   const [current, setCurrent] = React.useState(0);
   const searchRef = React.useRef(null);
-  const perpage = 10;
-  const pages = data.length > perpage ? Math.ceil(data.length / perpage) : 0;
+  const perpage = data.length > 10 ? 10 : data.length;
+  const pages = Math.ceil(data.length / perpage);
 
   const start = current * perpage;
   const end = current * perpage + perpage;
@@ -73,7 +75,7 @@ function App() {
   };
   //search
   const fetchSelected = (select) => {
-    if (select.trim()) {
+    if (!!select.trim()) {
       setSpinner(true);
       axios
         .get(`./server/routes.php?selectedsearch=true&selected=${select}`)
@@ -102,8 +104,7 @@ function App() {
           if (!data) throw new Error(res.statusText);
           return setData(data);
         })
-        .catch((error) => console.error("date", error.message))
-        .finally(() => console.log("Finally date"));
+        .catch((error) => console.error("date", error.message));
     }
   };
   // select
@@ -117,37 +118,46 @@ function App() {
           if (!data) throw new Error(res.data);
           return setData(data);
         })
-        .catch((error) => console.error("date", error.message))
-        .finally(() => console.log("Finally select"));
+        .catch((error) => console.error("date", error.message));
     }
   };
   const onChangePage = (e, p) => {
     console.log("page on", e, p);
+    setCurrent(p - 1);
   };
   const handleChange = (e, p) => {
     console.log("pageeee", e, p);
   };
   React.useEffect(() => {
-    let data = globalThis && JSON.parse(localStorage.getItem("sondikoList"));
+    //let data = globalThis && JSON.parse(localStorage.getItem("sondikoList"));
     let auth = globalThis && JSON.parse(localStorage.getItem("sondiko"));
-    setTimeout(() => setData(data), 3000);
+    //setTimeout(() => setData(data), 3000);
     if (auth) {
       Promise.all([getUsers(), getData()]);
     }
   }, []);
-  console.log("pages", pages);
+
   return (
-    <Layout>
+    <Layout totalPosts={data.length}>
       <Grid container className={classes.grid}>
         <Grid item lg={4} xs={12} md={4} className={classes.grids}>
           <FormControl className={classes.formControl}>
-            <TextField
+            <Input
               type="search"
               ref={searchRef}
               style={{ padding: ".15rem", margin: ".12rem" }}
               label="Search...."
               onBlur={() => fetchSelected(searched)}
               onChange={(e) => setSearched(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <SearchIcon
+                    size="large"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => fetchSelected(searched)}
+                  />
+                </InputAdornment>
+              }
             />
           </FormControl>
         </Grid>
@@ -155,6 +165,7 @@ function App() {
           <FormControl className={classes.formControl}>
             <TextField
               type="date"
+              placeholder="Search person,number or Id"
               style={{ padding: ".15rem", margin: ".15rem" }}
               onChange={handleDateSearch}
             />
@@ -197,13 +208,13 @@ function App() {
           <Divider />
           {!!data.length ? (
             <>
-              <ShowLoanees data={data.slice(start, end)} />
-              <TablePagination
+              <ShowLoanees data={data.slice(start, end)} start={start} />
+              <Pagination
                 count={pages}
-                nextIconButton={"next"}
-                rowsPerPage={perpage}
-                page={current}
-                onChangePage={onChangePage}
+                defaultPage={current + 1}
+                page={current + 1}
+                color="primary"
+                onChange={onChangePage}
               />
             </>
           ) : spinner ? (
@@ -224,8 +235,7 @@ export default App;
 const useStyles = makeStyles({
   grid: {
     padding: ".5rem",
-    margin: ".35rem 0",
-    border: "1px solid red"
+    margin: ".35rem 0"
   },
   grids: {
     "@media (max-width:480px)": {
@@ -240,7 +250,7 @@ const useStyles = makeStyles({
     }
   },
   formControl: {
-    width: "80%",
+    width: "70%",
     margin: " 0.5rem auto",
     padding: ".5rem",
     "@media (max-width:480px)": {

@@ -12,7 +12,7 @@ function Sondiko(): React.ReactNode {
   const classes = useStyles();
 
   return (
-    <Layout>
+    <Layout totalPosts={0}>
       <Grid className={classes.grid}>
         <Grid>
           <LoanForm />
