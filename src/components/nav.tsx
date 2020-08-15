@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/router";
 import {
   fade,
   makeStyles,
@@ -145,6 +146,10 @@ const useStyles = makeStyles((theme: Theme) =>
         display: "block",
         width: "100%"
       }
+    },
+    active: {
+      borderBottom: "2px solid red",
+      marginBottom: ".25rem"
     }
   })
 );
@@ -170,6 +175,7 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
     location.reload();
     //Router.push("/login");
   };
+  const { pathname } = useRouter();
 
   const MobileMenu = (
     <div className={classes.navbarMobileTop}>
@@ -187,8 +193,11 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
       </div>
       {isOpen ? (
         <div className={classes.navbarMobile}>
-          <Typography variant="body1">
-            <Link href="/">
+          <Typography
+            variant="body1"
+            className={pathname === "/" ? classes.active : ""}
+          >
+            <Link href="/" className={pathname === "/" ? classes.active : ""}>
               <MLink variant="body2">
                 <IconButton>
                   <Home color="primary" />
@@ -197,7 +206,10 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
             </Link>
           </Typography>
 
-          <Typography variant="body1">
+          <Typography
+            variant="body1"
+            className={pathname === "/today" ? classes.active : ""}
+          >
             <Link href="/today">
               <MLink variant="body2">
                 <IconButton>
@@ -207,7 +219,10 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
               </MLink>
             </Link>
           </Typography>
-          <Typography variant="body1">
+          <Typography
+            variant="body1"
+            className={pathname === "/this-week" ? classes.active : ""}
+          >
             <Link href="/this-week">
               <MLink variant="body2">
                 <IconButton>
@@ -217,7 +232,10 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
               </MLink>
             </Link>
           </Typography>
-          <Typography variant="body1">
+          <Typography
+            variant="body1"
+            className={pathname === "/sondiko" ? classes.active : ""}
+          >
             <Link href="/sondiko">
               <MLink variant="body2">
                 <IconButton>
@@ -257,7 +275,10 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
             </Typography>
           </div>
           <div className={classes.navbar}>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              className={pathname === "/" ? classes.active : ""}
+            >
               <Link href="/">
                 <MLink variant="body2">
                   <IconButton>
@@ -266,17 +287,11 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
                 </MLink>
               </Link>
             </Typography>
-            <Typography variant="body1">
-              <Link href="/sondiko">
-                <MLink variant="body2">
-                  <IconButton>
-                    <Form color="primary" />
-                  </IconButton>
-                  Form
-                </MLink>
-              </Link>
-            </Typography>
-            <Typography variant="body1">
+
+            <Typography
+              variant="body1"
+              className={pathname === "/today" ? classes.active : ""}
+            >
               <Link href="/today">
                 <MLink variant="body2">
                   <IconButton>
@@ -286,13 +301,29 @@ export default function PrimarySearchAppBar({ totalPosts = 0 }: Props) {
                 </MLink>
               </Link>
             </Typography>
-            <Typography variant="body1">
+            <Typography
+              variant="body1"
+              className={pathname === "/this-week" ? classes.active : ""}
+            >
               <Link href="/this-week">
                 <MLink variant="body2">
                   <IconButton>
                     <Week color="primary" />
                   </IconButton>
                   This week
+                </MLink>
+              </Link>
+            </Typography>
+            <Typography
+              variant="body1"
+              className={pathname === "/sondiko" ? classes.active : ""}
+            >
+              <Link href="/sondiko">
+                <MLink variant="body2">
+                  <IconButton>
+                    <Form color="primary" />
+                  </IconButton>
+                  Form
                 </MLink>
               </Link>
             </Typography>

@@ -119,8 +119,14 @@ if(isset($_GET["selectedsearch"]) && $_GET["selectedsearch"]=="true"){
 }
 
 if(isset($_GET["fetchtoday"]) && $_GET["fetchtoday"] =="true"){
-  echo "noted";
-  $sql="SELECT * FROM sondiko_clients WHERE  return_date='{CURDATE()}'";
+
+  $sql="SELECT * FROM sondiko_clients WHERE  return_date=curdate()";
+      $sondiko->getPayload($sql);
+   
+}
+if(isset($_GET["fetchthisweek"]) && $_GET["fetchthisweek"] =="true"){
+
+  $sql=" SELECT * FROM sondiko_clients WHERE  extract(week from return_date)=extract(week from curdate()) order by return_date desc";
       $sondiko->getPayload($sql);
    
 }

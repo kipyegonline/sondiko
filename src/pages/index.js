@@ -55,7 +55,6 @@ function App() {
     } catch (error) {
       setSpinner(false);
       setError(error.message);
-      console.log(error.message);
     }
   };
   //get  users
@@ -122,12 +121,9 @@ function App() {
     }
   };
   const onChangePage = (e, p) => {
-    console.log("page on", e, p);
     setCurrent(p - 1);
   };
-  const handleChange = (e, p) => {
-    console.log("pageeee", e, p);
-  };
+
   React.useEffect(() => {
     //let data = globalThis && JSON.parse(localStorage.getItem("sondikoList"));
     let auth = globalThis && JSON.parse(localStorage.getItem("sondiko"));
@@ -145,9 +141,10 @@ function App() {
             <Input
               type="search"
               ref={searchRef}
+              placeholder="Search person,number or Id"
               style={{ padding: ".15rem", margin: ".12rem" }}
               label="Search...."
-              onBlur={() => fetchSelected(searched)}
+              onKeyPress={(e) => e.key === "Enter" && fetchSelected(searched)}
               onChange={(e) => setSearched(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
@@ -165,7 +162,6 @@ function App() {
           <FormControl className={classes.formControl}>
             <TextField
               type="date"
-              placeholder="Search person,number or Id"
               style={{ padding: ".15rem", margin: ".15rem" }}
               onChange={handleDateSearch}
             />
@@ -267,3 +263,56 @@ const useStyles = makeStyles({
     }
   }
 });
+
+// cv
+
+const skills = [
+  {
+    language: "JavaScript",
+    libraries: [
+      "React js",
+      "jQuery",
+      "Redux",
+      "Next Js",
+      "TypeScript",
+      "D3 js",
+      "CSS in JS",
+      "Unit Testing (jest,Enzyme and Cypress)"
+    ]
+  },
+  { language: "Python", libraries: ["Python", "Pandas"] },
+  { language: "PHP", libraries: ["PHP core", "MySql"] },
+  {
+    language: "C#",
+    libraries: [
+      "I am currently learning C#, static and strongly typed object oriented language "
+    ]
+  }
+];
+
+console.log(
+  "%cHello there, \n why are you here? \n Anyway, my name is Vincent Kipyegon, a front end react web developer with over 3 years of experience. I enjoy building interfaces with javascript,backend stuff with php and Mysql and data analysis with python. \n \
+    Get in touch %cvincekipyegon11@gmail.com",
+  "font-family:cursive;font-size:1rem;",
+  "font-weight:bold; font-family:cursive;font-size:1rem;"
+);
+for (let i = 0; i < skills.length; i++) {
+  console.log(
+    `%c${skills[i].language} \n `,
+    "font-weight:bold; font-size:1rem;border-bottom:1px solid purple; color:purple; font-family:cursive;"
+  );
+  let lib = skills[i].libraries;
+  //console.table(lib);
+  //libraries
+  for (let j = 0; j < lib.length; j++) {
+    if (j < 1) {
+      console.log(
+        "%cLibrarie(s): ",
+        "font-style:italic; font-weight:bold; margin-left:.35rem"
+      );
+    }
+
+    console.log(`%c${j + 1}. ${lib[j]}`, "margin-left:.5rem");
+  }
+  //css frameworks
+}

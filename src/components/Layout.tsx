@@ -1,7 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import Router from "next/router";
-import { Grid } from "@material-ui/core";
+import { Grid, Typography, Divider } from "@material-ui/core";
 import Nav from "./nav";
 
 type Props = {
@@ -22,8 +22,35 @@ export default function Layout({ children, totalPosts }: Props): JSX.Element {
         <title>Sondiko Investments.</title>
       </Head>
       <Nav totalPosts={totalPosts} />
+      <section style={{ height: "100%" }}>{children}</section>
+      <Divider style={{ margin: "5rem 0 0 0" }} />
 
-      {children}
+      <Typography
+        variant="h6"
+        align="center"
+        style={{
+          background: "purple",
+          padding: ".85rem",
+          margin: "1.5rem auto 0",
+          color: "white",
+          lineHeight: "1em",
+          width: "98%",
+          position: "absolute",
+          left: 0,
+          bottom: 0
+        }}
+      >
+        Copyright &copy; {new Date().getFullYear()}. Sondiko Investments
+        Limited. All rights reserved.
+      </Typography>
+
+      <style jsx>
+        {`
+          .footer {
+            background: purple;
+          }
+        `}
+      </style>
       <style global jsx>
         {`
           html {
@@ -35,8 +62,11 @@ export default function Layout({ children, totalPosts }: Props): JSX.Element {
             background: #fff;
             font-family: roboto;
             font-size: 1rem;
-            margin: 1rem auto;
+            margin: 1rem auto 0;
             border-radius: 5px;
+            height: auto;
+            position: relative;
+            max-height: 2000px;
           }
         `}
       </style>

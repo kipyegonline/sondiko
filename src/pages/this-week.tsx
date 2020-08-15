@@ -1,9 +1,10 @@
 import React from "react";
 import axios from "axios";
-import Layout from "../components/Layout";
-import ShowLoanees from "../components/loanees";
 import { makeStyles } from "@material-ui/styles";
 import { Grid, Typography, CircularProgress, Divider } from "@material-ui/core";
+import Pagination from "@material-ui/lab/Pagination";
+import Layout from "../components/Layout";
+import ShowLoanees from "../components/loanees";
 
 const useStyles = makeStyles({
   title: {
@@ -15,7 +16,17 @@ const useStyles = makeStyles({
 export default function ThisWeek(): React.ReactNode {
   const [data, setData] = React.useState([]);
   const [spinner, setSpinner] = React.useState(false);
+  const [current, setCurrent] = React.useState(0);
   const classes = useStyles();
+  const perpage = data.length > 10 ? 10 : data.length;
+  const pages = Math.ceil(data.length / perpage);
+
+  const start = current * perpage;
+  const end = current * perpage + perpage;
+  const onChangePage = (e: React.ChangeEvent, p: number) => {
+    e.preventDefault();
+    setCurrent(p - 1);
+  };
   const fetchData = async (): Promise<void> => {
     setSpinner(true);
     try {
@@ -27,7 +38,6 @@ export default function ThisWeek(): React.ReactNode {
       setData(data);
     } catch (error) {
       setSpinner(false);
-      console.log("today", error.message);
     }
   };
   React.useEffect(() => {
@@ -35,7 +45,7 @@ export default function ThisWeek(): React.ReactNode {
   }, []);
   return (
     <Layout totalPosts={data.length}>
-      <Grid>
+      <Grid style={{ height: "100%" }}>
         <Typography align="center" className={classes.title}>
           This week
         </Typography>
@@ -47,7 +57,16 @@ export default function ThisWeek(): React.ReactNode {
               {!!data.length ? data.length : ""}{" "}
               {data.length < 1 ? "" : data.length > 1 ? "people" : "person"}
             </Typography>
-            <ShowLoanees data={data} start={0} />
+            <ShowLoanees data={data.slice(start, end)} start={start} />
+            {data.length > 10 ? (
+              <Pagination
+                count={pages}
+                defaultPage={current + 1}
+                page={current + 1}
+                color="primary"
+                onChange={onChangePage}
+              />
+            ) : null}
           </>
         ) : spinner ? (
           <Typography align="center" className={classes.title}>
@@ -55,7 +74,7 @@ export default function ThisWeek(): React.ReactNode {
           </Typography>
         ) : (
           <Typography align="center" className={classes.title}>
-            There are no results
+            There are no results for this week...
           </Typography>
         )}
         <style jsx>{`

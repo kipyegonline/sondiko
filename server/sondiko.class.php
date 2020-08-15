@@ -191,7 +191,7 @@ try{
 $id=self::$connection->lastInsertId();
 if($id>0){
     echo  json_encode(["status"=>200,
-    "statusText"=>"Assets $customerId recorded successfully."]);
+    "statusText"=>"Assets recorded successfully."]);
           }else{
               echo  json_encode(["status"=>201,
               "statusText"=>"error adding details. Check and try again."]);

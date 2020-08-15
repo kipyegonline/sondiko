@@ -30,7 +30,6 @@ export default function Today(): React.ReactNode {
       setData(data);
     } catch (error) {
       setSpinner(false);
-      console.log("today", error.message);
     }
   };
   React.useEffect(() => {
@@ -38,7 +37,7 @@ export default function Today(): React.ReactNode {
   }, []);
   return (
     <Layout totalPosts={data.length}>
-      <Grid>
+      <Grid style={{ height: "100%" }}>
         <Typography align="center" className={classes.title}>
           Today
         </Typography>
@@ -58,7 +57,8 @@ export default function Today(): React.ReactNode {
           </Typography>
         ) : (
           <Typography className={classes.title} align="center">
-            There are no results
+            There are no results today...use datepicker or search area on the
+            home page
           </Typography>
         )}
         <style jsx>{`

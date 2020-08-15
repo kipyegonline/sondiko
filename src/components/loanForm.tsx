@@ -32,7 +32,8 @@ const useStyles = makeStyles({
   formTitle: {
     textAlign: "center",
     padding: ".5rem .75rem",
-    borderBottom: "1px purple solid"
+    borderBottom: "1px purple solid",
+    margin: ".5rem"
   },
   asset: {
     margin: ".5rem .35rem",
@@ -208,7 +209,7 @@ export const LoanForm: React.FC<{}> = () => {
             setTimeout(() => {
               setClientServer(+data.id);
               setSpinner(false);
-              form.current.reset();
+              //form.current.reset();
             }, 1000);
           } else {
             throw new Error(res.data.statusText);
@@ -330,7 +331,7 @@ export const LoanForm: React.FC<{}> = () => {
               fullWidth
               disabled={spinner}
             >
-              Submit
+              Proceed
             </Button>
             <Snackbar
               open={success.length ? true : false}
@@ -387,15 +388,20 @@ const AssetsForm = ({
     setState(target.value);
   };
   const handleSubmit = () => {
-    setSpinner(true);
-    setTimeout(() => {
-      setSpinner(false);
-      setSuccess("Details added successfully");
+    if (!asset) {
+      setSpinner(true);
       setTimeout(() => {
-        setSuccess("");
-        clearFields();
-      }, 300);
-    }, 2000);
+        setSpinner(false);
+        setSuccess("Details added successfully");
+        setTimeout(() => {
+          setSuccess("");
+          clearFields();
+        }, 300);
+      }, 2000);
+    } else {
+      setError("Add typed assets above before submitting all");
+      setTimeout(() => setError(""), 3000);
+    }
   };
   const getEl = (el: string): HTMLInputElement =>
     document.getElementById(el) as HTMLInputElement;
@@ -490,6 +496,7 @@ const AssetsForm = ({
         variant="contained"
         size="large"
         disabled={spinner}
+        style={{ margin: ".5rem" }}
         onClick={handleSubmit}
       >
         Submit All
