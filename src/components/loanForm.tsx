@@ -200,7 +200,7 @@ export const LoanForm: React.FC<{}> = () => {
       };
       // useLocalStore(data);
       axios
-        .post("./server/routes.php?addloans=true", data)
+        .post("http://www.prhub.co.ke/server/routes.php?addloans=true", data)
         .then((res: Response) => {
           const { data } = res;
 
